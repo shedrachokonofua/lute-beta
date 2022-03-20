@@ -1,0 +1,56 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model KVStore {
+  key   String @id
+  value String
+}
+
+model Track {
+  id                String   @id @default(cuid())
+  name              String
+  spotifyId         String   @unique
+  rymId             String?
+  spotifyPopularity Int?
+  albumId           String?
+  album             Album?   @relation(fields: [albumId], references: [id])
+  artists           Artist[]
+}
+
+model Album {
+  id        String        @id @default(cuid())
+  name      String
+  spotifyId String        @unique
+  rymId     String?
+  tracks    Track[]
+  artists   Artist[]
+  rymData   RymAlbumData?
+}
+
+model RymAlbumData {
+  id              String   @id @default(cuid())
+  albumId         String   @unique
+  album           Album    @relation(fields: [albumId], references: [id])
+  rating          Float
+  ratingCount     Int
+  primaryGenres   String[]
+  secondaryGenres String[]
+  descriptors     String[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Artist {
+  id        String  @id @default(cuid())
+  name      String
+  spotifyId String  @unique
+  rymId     String?
+  albums    Album[]
+  tracks    Track[]
+}

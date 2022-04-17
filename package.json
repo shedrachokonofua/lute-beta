@@ -12,13 +12,17 @@
     "lint": "esprint check",
     "lint:fix": "esprint check --fix",
     "lint:watch": "esprint --fix",
+    "format": "prettier --write '**/*.{ts,tsx}'",
     "start": "ts-node ./build",
-    "test": "jest --coverage"
+    "test": "jest --coverage",
+    "get-chart-recommendations": "ts-node ./src get-chart-recommendations"
   },
   "author": "Shedrach Okonofua",
   "license": "ISC",
   "devDependencies": {
     "@tsconfig/recommended": "^1.0.1",
+    "@types/bull": "^3.15.8",
+    "@types/bull-board": "^0.6.0",
     "@types/express": "^4.17.13",
     "@types/jest": "^26.0.16",
     "@types/x-ray": "^2.3.3",
@@ -52,20 +56,24 @@
     "*.{js,ts,css,md}": "prettier --write"
   },
   "dependencies": {
+    "@bull-board/express": "^3.10.4",
     "@prisma/client": "^3.11.0",
     "@types/spotify-web-api-node": "^5.0.7",
     "axios": "^0.26.1",
+    "bull": "^4.8.1",
     "date-fns": "^2.28.0",
     "dotenv": "^16.0.0",
     "env-var": "^7.1.1",
     "express": "^4.17.3",
     "open": "^8.4.0",
     "pino": "^7.9.1",
+    "pino-pretty": "^7.6.1",
     "puppeteer": "^13.5.1",
     "puppeteer-extra": "^3.2.3",
     "puppeteer-extra-plugin-stealth": "^2.9.0",
     "purify-ts": "^0.16.1",
     "spotify-web-api-node": "^5.0.2",
+    "winston": "^3.7.2",
     "x-ray": "^2.3.4"
   }
 }

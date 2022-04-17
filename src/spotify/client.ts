@@ -1,6 +1,7 @@
 import SpotifyWebApi from "spotify-web-api-node";
 import { config } from "../config";
 import { database } from "../database";
+import { logger } from "../logger";
 import { authorize } from "./auth";
 
 const spotifyApi = new SpotifyWebApi({
@@ -19,9 +20,9 @@ const connectArtist = (artist: { id: string; name: string }) => ({
   },
 });
 
-export const fetchUserLibrary = async (): Promise<void> => {
+export const loadUserLibrary = async (): Promise<void> => {
   await authorize(spotifyApi);
-  for (let index = 0; index < 20; index++) {
+  for (let index = 0; index < 40; index++) {
     const {
       body: { items: tracks },
     } = await spotifyApi.getMySavedTracks({
@@ -62,5 +63,7 @@ export const fetchUserLibrary = async (): Promise<void> => {
         create: data,
       });
     }
+
+    logger.info("Loaded %d tracks", tracks.length);
   }
 };

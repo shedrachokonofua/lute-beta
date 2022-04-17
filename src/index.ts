@@ -1,42 +1,16 @@
-import { database } from "./database";
 import { logger } from "./logger";
-import { launchBrowser, loadRymAlbumData } from "./rym";
-import { fetchUserLibrary } from "./spotify/client";
+import { getChartRecommendations } from "./programs/get-chart-recommendations";
+import { loadUserData } from "./programs/load-user-data";
+import { processAlbumDataFetch } from "./programs/process-album-data-fetch";
+import { startQueueDashboard } from "./programs/start-queue-dashboard";
+import { sync } from "./programs/sync";
 
-// fetchUserLibrary().catch((error) => {
-//   logger.error(error);
-// });
-
-// fetchAlbumData("Jay-Z", "Magna Carta... Holy Grail")
-//   .then((data) => console.log(JSON.stringify(data, undefined, 2)))
-//   .catch((error) => {
-//     logger.error(error);
-//   });
-
-const getAlbums = () => database.album.findMany();
-
-const wait = (s: number) =>
-  new Promise((resolve) => setTimeout(resolve, s * 1000));
-
-const program = async () => {
-  await fetchUserLibrary();
-  const { page } = await launchBrowser();
-  const albums = await getAlbums();
-
-  for (const album of albums) {
-    try {
-      await loadRymAlbumData(page, album.id);
-    } catch (error) {
-      logger.error(error);
-    }
-    //await wait(10);
-  }
-};
-
-const run = async () => {
+const run = async (program: () => Promise<void> | void) => {
   const start = new Date();
   try {
     await program();
+    // eslint-disable-next-line no-process-exit, unicorn/no-process-exit
+    //process.exit(0);
   } catch (error) {
     logger.error(error);
   } finally {
@@ -45,6 +19,18 @@ const run = async () => {
   }
 };
 
-run().catch((error) => {
-  logger.error(error);
-});
+const commands = {
+  sync,
+  "start-queue-dashboard": startQueueDashboard,
+  "process-album-data-fetch": processAlbumDataFetch,
+  "get-chart-recommendations": getChartRecommendations,
+};
+
+const command = process.argv[2] as string | undefined;
+if (!command) {
+  throw new Error("No command specified");
+}
+if (!(command in commands)) {
+  throw new Error(`Unknown command ${command}`);
+}
+void run(commands[command as keyof typeof commands]);

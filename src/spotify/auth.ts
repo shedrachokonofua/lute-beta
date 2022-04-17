@@ -62,7 +62,7 @@ const storeCredentials = async (credentials: SpotifyUserCredentials) => {
     KVStoreKey.spotifyAccessTokenExpiration,
     credentials.expiresIn
   );
-  logger.info(credentials, "Stored credentials");
+  logger.info("Stored credentials", credentials);
 };
 
 const fetchCredentials = async (
@@ -73,12 +73,11 @@ const fetchCredentials = async (
     open(authorizationUrl),
     waitForAuthorizationCode(),
   ]);
-  logger.info({ code }, "Received authorization code");
+  logger.info("Received authorization code", { code });
 
   const { body } = await api.authorizationCodeGrant(code);
-  console.log(body);
   const credentials = toSpotifyUserCredentials(body);
-  logger.info(credentials, "Received credentials");
+  logger.info("Received credentials", credentials);
 
   await storeCredentials(credentials);
 
@@ -94,20 +93,10 @@ const retrieveStoredCredentials = async (): Promise<SpotifyUserCredentials> => (
   ),
 });
 
-const getCredentials = async (
-  api: SpotifyWebApi
-): Promise<SpotifyUserCredentials> => {
-  try {
-    return await retrieveStoredCredentials();
-  } catch {
-    return await fetchCredentials(api);
-  }
-};
-
 export const authorize = async (api: SpotifyWebApi): Promise<void> => {
   try {
-    const credentials = await getCredentials(api);
-    logger.info(credentials, "Loaded credentials");
+    const credentials = await fetchCredentials(api);
+    logger.info("Loaded credentials", credentials);
     api.setAccessToken(credentials.accessToken);
     api.setRefreshToken(credentials.refreshToken);
   } catch (error) {

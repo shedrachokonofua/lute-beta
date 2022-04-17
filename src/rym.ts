@@ -101,15 +101,40 @@ export interface RYMChartAlbum {
   descriptors: string[];
 }
 
-export const fetchAlbumChart = async (
-  browserPage: Page,
-  year = "2022",
-  page = 1,
-  excludeGenres: string[] = []
-): Promise<RYMChartAlbum[]> => {
-  const filters = excludeGenres
-    ? `/g:${excludeGenres.map((g) => `-${g}`).join(",")}`
-    : "";
+const getFiltersPathSegment = ({
+  includeGenres = [],
+  excludeGenres = [],
+}: {
+  includeGenres: string[];
+  excludeGenres: string[];
+}): string => {
+  if (includeGenres.length === 0 && excludeGenres.length === 0) {
+    return "";
+  }
+  const filter = [
+    ...includeGenres,
+    ...excludeGenres.map((genre) => `-${genre}`),
+  ];
+  return `/g:${filter.join(",")}`;
+};
+
+export const fetchAlbumChart = async ({
+  browserPage,
+  year,
+  page,
+  includeGenres = [],
+  excludeGenres = [],
+}: {
+  browserPage: Page;
+  year: string;
+  page: number;
+  includeGenres?: string[];
+  excludeGenres?: string[];
+}): Promise<RYMChartAlbum[]> => {
+  const filters = getFiltersPathSegment({
+    includeGenres,
+    excludeGenres,
+  });
   const chartUrl = getRymUrl(`charts/top/album/${year}${filters}/${page}/`);
   const html = await getPageHtml(browserPage, chartUrl);
 

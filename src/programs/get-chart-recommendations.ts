@@ -141,9 +141,12 @@ const getChart = async (): Promise<RYMChartAlbum[]> => {
   const allAlbums = [];
 
   for (let page = 1; page <= 10; page++) {
-    const chart = await fetchAlbumChart(browserPage, "2010s", page, [
-      "hip-hop",
-    ]);
+    const chart = await fetchAlbumChart({
+      browserPage,
+      page,
+      year: "1960-2022",
+      excludeGenres: ["hip-hop"],
+    });
     await wait(2);
     allAlbums.push(...chart);
   }
@@ -206,11 +209,11 @@ export const getChartRecommendations = async (): Promise<void> => {
     const averagePercentile = getAverage([
       ...repeat(ratingPercentile, 10),
       ...repeat(ratingCountPercentile, 5),
-      ...repeat(averagePrimaryGenrePercentile, 45),
+      ...repeat(averagePrimaryGenrePercentile, 30),
       ...repeat(averageSecondaryGenrePercentile, 30),
-      ...repeat(averagePrimaryCrossGenrePercentile, 20),
-      ...repeat(averageSecondaryCrossGenrePercentile, 15),
-      ...repeat(averageDescriptorPercentile, 90),
+      ...repeat(averagePrimaryCrossGenrePercentile, 30),
+      ...repeat(averageSecondaryCrossGenrePercentile, 30),
+      ...repeat(averageDescriptorPercentile, 100),
     ]);
 
     return {

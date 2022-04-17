@@ -2,7 +2,7 @@ import { database } from "../database";
 import { saveToFile } from "../reports/common";
 import { launchBrowser, fetchAlbumChart, RYMChartAlbum } from "../rym";
 
-const NOVELTY_FACTOR = 0.5; // Percentile assigned to genres/descriptors not in user data
+const NOVELTY_FACTOR = 0.25; // Percentile assigned to genres/descriptors not in user data
 
 interface RecommendationItem {
   chartAlbum: RYMChartAlbum;

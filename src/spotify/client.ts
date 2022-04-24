@@ -64,6 +64,6 @@ export const loadUserLibrary = async (): Promise<void> => {
       });
     }
 
-    logger.info("Loaded %d tracks", tracks.length);
+    logger.info(`Loaded ${index * 50 + 50} tracks`);
   }
 };

@@ -1,4 +1,5 @@
 import { database } from "../database";
+import { logger } from "../logger";
 import { saveToFile } from "../reports/common";
 import { launchBrowser, fetchAlbumChart, RYMChartAlbum } from "../rym";
 
@@ -136,19 +137,48 @@ const repeat = <T>(item: T, count: number): T[] =>
 const wait = (s: number) =>
   new Promise((resolve) => setTimeout(resolve, s * 1000));
 
+const isAlbumInUserLibrary = async (
+  chartAlbum: RYMChartAlbum
+): Promise<boolean> => {
+  return Boolean(
+    await database.album.findFirst({
+      where: {
+        name: {
+          equals: chartAlbum.name,
+          mode: "insensitive",
+        },
+        artists: {
+          some: {
+            name: {
+              in: chartAlbum.artistNames,
+              mode: "insensitive",
+            },
+          },
+        },
+      },
+    })
+  );
+};
+
 const getChart = async (): Promise<RYMChartAlbum[]> => {
   const { page: browserPage } = await launchBrowser();
-  const allAlbums = [];
+  const allAlbums: RYMChartAlbum[] = [];
 
   for (let page = 1; page <= 10; page++) {
     const chart = await fetchAlbumChart({
       browserPage,
       page,
-      year: "1960-2022",
-      excludeGenres: ["hip-hop"],
+      year: "2021",
     });
     await wait(2);
-    allAlbums.push(...chart);
+
+    await Promise.all(
+      chart.map(async (chartAlbum) => {
+        if (!(await isAlbumInUserLibrary(chartAlbum))) {
+          allAlbums.push(chartAlbum);
+        }
+      })
+    );
   }
 
   await browserPage.close();
@@ -210,9 +240,9 @@ export const getChartRecommendations = async (): Promise<void> => {
       ...repeat(ratingPercentile, 10),
       ...repeat(ratingCountPercentile, 5),
       ...repeat(averagePrimaryGenrePercentile, 30),
-      ...repeat(averageSecondaryGenrePercentile, 30),
-      ...repeat(averagePrimaryCrossGenrePercentile, 30),
-      ...repeat(averageSecondaryCrossGenrePercentile, 30),
+      ...repeat(averageSecondaryGenrePercentile, 15),
+      ...repeat(averagePrimaryCrossGenrePercentile, 20),
+      ...repeat(averageSecondaryCrossGenrePercentile, 10),
       ...repeat(averageDescriptorPercentile, 100),
     ]);
 
@@ -233,5 +263,5 @@ export const getChartRecommendations = async (): Promise<void> => {
     (a, b) => b.averagePercentile - a.averagePercentile
   );
 
-  await saveToFile(pick(sortedRecommendations, 10), "chart-recommendations");
+  await saveToFile(pick(sortedRecommendations, 50), "chart-recommendations");
 };

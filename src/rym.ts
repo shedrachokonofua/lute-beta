@@ -122,12 +122,14 @@ export const fetchAlbumChart = async ({
   browserPage,
   year,
   page,
+  recordType = "album",
   includeGenres = [],
   excludeGenres = [],
 }: {
   browserPage: Page;
   year: string;
   page: number;
+  recordType?: "album" | "ep";
   includeGenres?: string[];
   excludeGenres?: string[];
 }): Promise<RYMChartAlbum[]> => {
@@ -135,7 +137,9 @@ export const fetchAlbumChart = async ({
     includeGenres,
     excludeGenres,
   });
-  const chartUrl = getRymUrl(`charts/top/album/${year}${filters}/${page}/`);
+  const chartUrl = getRymUrl(
+    `charts/top/${recordType}/${year}${filters}/${page}/`
+  );
   const html = await getPageHtml(browserPage, chartUrl);
 
   const albums = (await xray(html, ".chart_item_release", [

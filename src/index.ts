@@ -1,6 +1,5 @@
 import { logger } from "./logger";
 import { getChartRecommendations } from "./programs/get-chart-recommendations";
-import { loadUserData } from "./programs/load-user-data";
 import { processAlbumDataFetch } from "./programs/process-album-data-fetch";
 import { startQueueDashboard } from "./programs/start-queue-dashboard";
 import { sync } from "./programs/sync";
